@@ -1,0 +1,426 @@
+#include<stdio.h>
+int bitXor(int x, int y) {
+  unsigned int result1,result2,result3,result4;
+       result1 = (~x) & (~y);
+       result2 = ~result1;/*result2 is x | y,consider De Morgan's Laws*/
+       result3 = x & y;
+      result4 = ~result3;
+       
+  return result4 & result2;
+}
+int tmin(void) {
+  int min;
+  int w = 32;
+  min = 1<<(w-1);
+  return min;
+
+}
+int isTmax(int x) {
+  int max;
+  int w = 32;
+  max = (1<<(w-1))-1;
+  printf("%d\n",max);
+  if(x == max)
+    return 1;
+  else return 0;
+      
+}
+/* int allOddBits(int x) { */
+
+/*   int state=1; */
+/*   for(int i=0;i<15;i++){ */
+/*     if((x & 0x80000000) == 0x80000000) */
+/*       state = 1; */
+/*     else state = 0; */
+
+/*     /\* printf("%d\n",state); *\/ */
+/*     x<<=2; */
+/*   } */
+/*   return state; */
+/* } */
+/* int negate(int x) { */
+/*   int num; */
+/*   num = (~x)+1; */
+/*   return num; */
+/* } */
+int isAsciiDigit(int x) {
+  int num1 = 0x30;
+  int num2 = 0x39;
+  if(x>>4 ^ 0x3)
+    return 0;
+  
+  return 2;
+}
+int allOddBits(int x) {
+  /* 
+ * allOddBits - return 1 if all odd-numbered bits in word set to 1
+ *   where bits are numbered from 0 (least significant) to 31 (most significant)
+ *   Examples allOddBits(0xFFFFFFFD) = 0, allOddBits(0xAAAAAAAA) = 1
+ *   Legal ops: ! ~ & ^ | + << >>
+ *   Max ops: 12
+ *   Rating: 2
+ */
+  int test,result;
+  
+  test = 0x55555555;
+  result = x & test;
+  if(!(result ^ test))
+    return 1;
+  else return 0;
+}
+/* 
+ * negate - return -x 
+ *   Example: negate(1) = -1.
+ *   Legal ops: ! ~ & ^ | + << >>
+ *   Max ops: 5
+ *   Rating: 2
+ */
+
+int negate(int x) {
+  int temp,result;
+    
+  /*negative num is stored as two's complement num*/
+  temp = x ^ 0xFFFFFFFF;
+  result = temp+1;
+
+  return result;
+}
+
+/* 
+ * conditional - same as x ? y : z 
+ *   Example: conditional(2,4,5) = 4
+ *   Legal ops: ! ~ & ^ | + << >>
+ *   Max ops: 16
+ *   Rating: 3
+ */
+int conditional(int x, int y, int z) {
+  if(x ^ 0x00000000)
+    return y;
+  else return z;
+}
+/* 
+ * isLessOrEqual - if x <= y  then return 1, else return 0 
+ *   Example: isLessOrEqual(4,5) = 1.
+ *   Legal ops: ! ~ & ^ | + << >>
+ *   Max ops: 24
+ *   Rating: 3
+ */
+int isLessOrEqual(int x, int y) {
+  int x_sign,y_sign,temp;
+  int test = 0x80000000;
+  int xy_high_bit_diff;
+  int mov_count = 31;
+  x_sign = x >> 31;
+  y_sign = y >> 31;
+  temp = x_sign & y_sign;
+  
+  if(!(x ^ y))/* x equals y*/
+    return 1;
+  
+  if((temp ^ 0)){/* x and y both neg */
+    printf("neg\n");
+      for(int i=0;i<32;i++){
+	xy_high_bit_diff = ((x & test) + ~(y & test) + 1) >> mov_count;
+      	switch(xy_high_bit_diff){
+      	case 1:
+	  return 0;
+      	case 0:
+	  break;
+      	case -1:
+	  return 1;
+      	}
+      	test = test >> 1;
+	mov_count--;
+      }
+    /* for(int i=0;i<32;i++){ */
+    /*   if((x & test) + ~(y & test) + 1) */
+    /* 	return 0;       */
+    /*   test = test >> 1; */
+    /* }     */
+  }
+  else if((temp ^ 1)){
+    if(x_sign + ~y_sign + 1){/* x-y */
+      printf("diff sign\n");
+      return 0;
+    }
+    else{/* x ang y both pos */
+      printf("pos\n"); 
+      for(int i=0;i<32;i++){
+	xy_high_bit_diff = ((x & test) + ~(y & test) + 1) >> mov_count;
+	
+	printf("xy_high_bit_diff: %d\n", xy_high_bit_diff); 
+      	switch(xy_high_bit_diff){
+      	case 1:
+	  return 1;      	  
+      	case 0:
+	  break;
+      	case -1:
+      	  return 0;
+      	}
+      	test = test >> 1;
+	mov_count--;
+      }      
+    }
+  }
+  else printf("undefine");    
+}
+/* 
+ * logicalNeg - implement the ! operator, using all of 
+ *              the legal operators except !
+ *   Examples: logicalNeg(3) = 0, logicalNeg(0) = 1
+ *   Legal ops: ~ & ^ | + << >>
+ *   Max ops: 12
+ *   Rating: 4 
+ */
+int logicalNeg(int x) {
+  int  test = 0x00000000;
+  if((x ^ test))/*x is 1*/
+    return 0;
+  else
+    return 1;
+}
+
+/* howManyBits - return the minimum number of bits required to represent x in
+ *             two's complement
+ *  Examples: howManyBits(12) = 5
+ *            howManyBits(298) = 10
+ *            howManyBits(-5) = 4
+ *            howManyBits(0)  = 1
+ *            howManyBits(-1) = 1
+ *            howManyBits(0x80000000) = 32
+ *  Legal ops: ! ~ & ^ | + << >>
+ *  Max ops: 90
+ *  Rating: 4
+ */
+int howManyBits(int x) { 
+  int count = 0;
+  int x_sign = (x & 0x80000000) >> 31;
+  int x_abs;
+  int x_abs_temp;  
+  
+  /*if x is neg*/
+  if(x_sign){
+    x_abs = ~x + 1;    
+    count++;
+    printf("x is neg\n");
+  }
+  else x_abs = x;
+  /* printf("x_abs = %d\n",x_abs); */
+  
+  /* get x_abs_highest_bit */
+  x_abs_temp = x_abs;  
+  while(x_abs_temp){    
+    count++;
+    x_abs_temp = x_abs_temp >> 1;
+  }
+  
+  return count;                  
+}
+//float
+/* 
+ * floatScale2 - Return bit-level equivalent of expression 2*f for
+ *   floating point argument f.
+ *   Both the argument and result are passed as unsigned int's, but
+ *   they are to be interpreted as the bit-level representation of
+ *   single-precision floating point values.
+ *   When argument is NaN, return argument
+ *   Legal ops: Any integer/unsigned operations incl. ||, &&. also if, while
+ *   Max ops: 30
+ *   Rating: 4
+ */
+unsigned floatScale2(unsigned uf) {
+  unsigned scaled_num;
+  unsigned s,m,e;
+  unsigned scale2_num_e,scale2_num_m,scale2_num_s;
+  unsigned m_highest_bit;
+  s = uf & 0x80000000;/* sign bit */
+  e = (uf & 0x7F800000) >> 23;/* exponent bits */
+  m = uf & 0x007FFFFF;/* frac bits */
+  m_highest_bit = uf & 0x00400000;
+
+  scale2_num_s = s;    
+  scale2_num_m = m;
+  /* denormalized case */
+  if((e >> 23) == 0xFF){
+    if(scale2_num_m != 0){
+      printf("NaN\n");
+      return uf;
+    }
+    else{
+      printf("infinity num\n");
+      return uf;
+    }
+  }
+  scale2_num_e = (e + 1) << 23;
+  printf("[s] before:0x%08X,after :0x%08X\n",s,scale2_num_s);
+  printf("[e] before:0x%08X,after :0x%08X\n",e,scale2_num_e);
+  printf("[m] before:0x%08X,after :0x%08X\n",m,scale2_num_m);
+  
+  printf("float scaled!\n");
+  return scale2_num_s | scale2_num_e | scale2_num_m;      
+}
+
+/* 
+ * floatFloat2Int - Return bit-level equivalent of expression (int) f
+ *   for floating point argument f.
+ *   Argument is passed as unsigned int, but
+ *   it is to be interpreted as the bit-level representation of a
+ *   single-precision floating point value.
+ *   Anything out of range (including NaN and infinity) should return
+ *   0x80000000u.
+ *   Legal ops: Any integer/unsigned operations incl. ||, &&. also if, while
+ *   Max ops: 30
+ *   Rating: 4
+ */
+int floatFloat2Int(unsigned uf) {
+  int target_num;
+  unsigned target_num_rest;
+  unsigned s,m,exp;
+  int shift_count,count;
+  unsigned bias = 127;
+  int cuter = 0x80000000;
+  unsigned implied1 = 0x00000001;
+  
+  s = uf & 0x80000000;/* sign bit */
+  printf("sign bit:0x%08X\n",s);
+  exp = (uf & 0x7F800000) >> 23;/* exponent bits */
+  m = (uf & 0x007FFFFF) << 9;/* frac bits */
+  shift_count =  exp - bias;
+  count = exp - bias + 23;
+  while(shift_count--){
+    cuter >>= 1;
+    implied1 <<= 1;
+  }
+  int target_num_rest_temp = (m & cuter) >> 9;
+  printf("before:rest_temp:0x%08X\n",target_num_rest_temp);
+  /* shift the rest to the right */
+  while(count--)
+    target_num_rest_temp >>= 1;
+  
+  target_num_rest = target_num_rest_temp | implied1;
+  printf("after:rest_temp:0x%08X\n",target_num_rest_temp);
+  target_num = s | target_num_rest;
+
+  return target_num;
+  
+
+  
+}
+
+/* 
+ * floatPower2 - Return bit-level equivalent of the expression 2.0^x
+ *   (2.0 raised to the power x) for any 32-bit integer x.
+ *
+ *   The unsigned value that is returned should have the identical bit
+ *   representation as the single-precision floating-point number 2.0^x.
+ *   If the result is too small to be represented as a denorm, return
+ *   0. If too large, return +INF.
+ * 
+ *   Legal ops: Any integer/unsigned operations incl. ||, &&. Also if, while 
+ *   Max ops: 30 
+ *   Rating: 4
+ */
+unsigned floatPower2(int x) {
+
+  unsigned s,exp,m;
+  unsigned target_num,shift_count;
+  unsigned target_num_s,target_num_exp,target_num_m;
+  unsigned test = 0x00000001;
+  unsigned target_num_m_temp,m_temp;
+  
+  /* float 2.0 bit-level presentation */
+  s = 0x00000000;
+  exp = 0x40000000 >> 23;/* exponent bits aligned to right*/
+  m = 0x00000000;
+  /* s = x & 0x80000000;/\* sign bit *\/   */
+  /* exp = (x & 0x7F800000) >> 23;/\* exponent bits aligned to right*\/ */
+  /* printf("exp bit 1:0x%08X\n",exp << 23); */
+  /* m = x & 0x007FFFFF;/\* frac bits *\/ */
+  /* printf("frac bit 1:0x%08X\n",m); */
+
+  
+  /* deal with sign bit */
+  target_num_s = s;
+  /* if(s == 0x80000000){ */
+  /*   if(x % 2 || x == 0) */
+  /*     target_num_s = 0x00000000; */
+  /*   else */
+  /*     target_num_s = 0x80000000; */
+  /* } */
+  
+  /* deal with frac bits*/
+  target_num_m = m;
+  /* unsigned implied1 = 0x00000001 << 23;   */
+  /* m_temp = (implied1 | m) >> shift_count; */
+  /* printf("m with implied 1 bit:0x%08X\n",m_temp); */
+  /* target_num_m_temp = m_temp * m_temp; */
+  /* printf("frac bit 2:0x%08X\n",target_num_m_temp); */
+
+  /* deal with exp bits */
+  unsigned target_num_exp_temp =(exp - 127) * x + 127;  
+  target_num_exp = target_num_exp_temp << 23;
+
+  /* /\* check if frac overflows *\/ */
+  /* if((target_num_m_temp >> 23) >= 0x00000002){/\* positive overflow *\/ */
+  /*   target_num_m = (target_num_m_temp & 0x007FFFFF) >> 1; */
+  /*   target_num_exp = (target_num_exp_temp + 1) << 23; */
+  /*   printf("pos overflow\n"); */
+  /* }   */
+  /* else if((target_num_m_temp >> 23) < 0x00000001){/\* negtive overflow *\/ */
+  /*   target_num_m = (target_num_m_temp & 0x007FFFFF) << 1; */
+  /*   target_num_exp = (target_num_exp_temp - 1) << 23; */
+  /*   printf("neg overflow\n"); */
+  /* } */
+  /* /\* printf("now the exp bit is:0x%08X\n",target_num_exp); *\/ */
+  
+  /* denormalized cases */
+  if(target_num_exp_temp == 0xFF || target_num_exp_temp == 0x00){
+    printf("denormal\n");
+    return x;
+  }
+  
+  /*target number*/
+  target_num = target_num_s | target_num_exp | target_num_m;
+  return target_num;
+}
+main(){
+  unsigned num = 0x40000000;
+  
+  
+  /* printf("%d\n",floatFloat2Int(num)); */
+  printf("Output: 0x%08X\n",floatPower2(2));
+  
+  return 0;
+}
+/* int main() { */
+/*   // 测试用例 */
+/*   unsigned test_cases[] = { */
+/*     0x40000000,  // 2.0 */
+/*     0x3F800000,  // 1.0 */
+/*     0x7F7FFFFF,  // 接近最大规格化数 */
+/*     0x7F800000,  // 无穷大 */
+/*     0x00000000,  // 0.0 */
+/*     0x80000000,  // -0.0 */
+/*     0x3F000000,  // 0.5 */
+/*     0x3F400000,  // 0.75 */
+/*     0x7FC00000,  // NaN */
+/*     0x7F7FFFFF   // 最大规格化数 */
+/*   }; */
+
+/*   // 测试用例的数量 */
+/*   int num_test_cases = sizeof(test_cases) / sizeof(test_cases[0]); */
+
+/*   // 遍历测试用例 */
+/*   for (int i = 0; i < num_test_cases; i++) { */
+/*     unsigned input = test_cases[i]; */
+/*     unsigned output = floatScale2(input); */
+
+/*     // 打印输入和输出 */
+/*     printf("Input: 0x%08X, Output: 0x%08X\n", input, output); */
+/*   } */
+/*   return 0; */
+/* } */
+
+
+
+

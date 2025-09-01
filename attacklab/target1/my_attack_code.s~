@@ -1,0 +1,3 @@
+	pushq $0x59b997fa
+	popq %rdi
+	ret
