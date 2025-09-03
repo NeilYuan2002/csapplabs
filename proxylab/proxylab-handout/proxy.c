@@ -300,27 +300,7 @@ void readFromServer(int serverfd, int clientfd, cache *cp, const char *uri) {
     cacheInsert(cp, uri, object_buf, total_size);
     pthread_mutex_unlock(&cache_mutex);
 }
-/* void readFromServer(int serverfd, int clientfd, cache *cp) { */
-/*   /\* accept reply *\/ */
-/*   rio_t rio; */
-/*   char buf[MAXLINE]; */
-/*   ssize_t n; */
 
-/*   Rio_readinitb(&rio, serverfd); */
-  
-/*   while((n = Rio_readlineb(&rio, buf, MAXLINE)) > 0) { */
-/*       Rio_writen(clientfd, buf, n); */
-/*     } */
-/*   /\* Insert into cache *\/ */
-/*   for (int i = 0; i < CACHE_BLOCK_NUM; i++) { */
-/*     int min = cp->blocks[0].priority; */
-/*     if (cp->blocks[i].priority < min) { */
-/*       min = cp->blocks[i].priority; */
-/*     } */
-    
-/*   } */
-   
-/* } */
 /*
  *  sends obeject from cacheblock to the client.
  */
